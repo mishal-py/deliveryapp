@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:newapp/components/custom_textfield.dart';
-import 'package:newapp/pages/cart_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -47,17 +46,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-       actions: [
-        IconButton(
-          onPressed: (){
-            Navigator.push(context, 
-    MaterialPageRoute(builder: (context)=> const CartScreen(),
-    ),
-    );
-          },
-          icon: Icon(Icons.shopping_cart))
-      ],
+    //     centerTitle: true,
+    //    actions: [
+    //     IconButton(
+    //       onPressed: (){
+    //         Navigator.push(context, 
+    // MaterialPageRoute(builder: (context)=> const CartScreen(),
+    // ),
+    // );
+    //       },
+    //       icon: Icon(Icons.shopping_cart))
+    //   ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

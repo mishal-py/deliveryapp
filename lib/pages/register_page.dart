@@ -1,6 +1,11 @@
+// register_page.dart
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:newapp/components/custom_textfield.dart';
 import 'package:newapp/components/custom_button.dart';
+import 'package:newapp/pages/waiting_screen.dart';
+
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -16,12 +21,15 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmpasswordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? errorMessage;
   String? emailErrorMessage;
   bool isButtonEnabled = false;
+  bool _isLoading = false;
 
-  bool isValidEmail(String email) {
+   bool isValidEmail(String email) {
     return RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").hasMatch(email);
   }
 
@@ -48,29 +56,63 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    emailController.addListener(validateInputs);
-    passwordController.addListener(validateInputs);
-    confirmpasswordController.addListener(validateInputs);
+    Future<void> _registerUser() async {
+    setState(() => _isLoading = true);
+    try {
+      // Create user in Firebase Auth
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Create user document with pending approval
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'email': emailController.text.trim(),
+        'role': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+        'approved': false,
+        'requestedRole': 'client',
+      }).then((_) {
+        print("✅ Firestore user document created!");
+      }).catchError((error) {
+        print("❌ Error writing to Firestore: $error");
+      });
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WaitingScreen()),
+        );
+      }
+
+    } on FirebaseAuthException catch (e) {
+      _handleAuthError(e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+    
+  }
+  
+
+  void _handleAuthError(FirebaseAuthException e) {
+    String message = 'Registration failed';
+    if (e.code == 'weak-password') message = 'Password is too weak';
+    if (e.code == 'email-already-in-use') message = 'Email already exists';
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
-  @override
-  void dispose() {
-    passwordController.dispose();
-    confirmpasswordController.dispose();
-    emailController.dispose();
-    super.dispose();
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: SingleChildScrollView(
+          child: Column(
           children: [
             // Logo
             Image.asset(
@@ -122,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 25),
             CustomButton(
               text: "Sign up",
-              onTap: isButtonEnabled ? () {} : null,
+               onTap: !_isLoading ? _registerUser : null,
             ),
             const SizedBox(height: 25),
             Row(
@@ -148,6 +190,14 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ),
       ),
+      ),
     );
+  }
+    @override
+  void dispose() {
+    passwordController.dispose();
+    confirmpasswordController.dispose();
+    emailController.dispose();
+    super.dispose();
   }
 }

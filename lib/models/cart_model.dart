@@ -1,26 +1,66 @@
 import 'package:flutter/foundation.dart';
-import 'package:newapp/models/cart_item.dart';
 
-class CartModel extends ChangeNotifier {
+class CartItem {
+  final String foodId;
+  final String name;
+  final double price;
+  int quantity;
+  final String categoryId;
+  final String? size;
+  final List<Map<String, dynamic>> addons;
+
+  CartItem({
+    required this.foodId,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.categoryId,
+    this.size,
+    this.addons = const [],
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'foodId': foodId,
+      'name': name,
+      'price': price,
+      'quantity': quantity,
+      'categoryId': categoryId,
+      'size': size,
+      'addons': addons,
+    };
+  }
+
+  double get totalPrice {
+    double total = price * quantity;
+    if (addons.isNotEmpty) {
+      total += addons.fold(0.0, (sum, addon) => sum + (addon['price'] as double)) * quantity;
+    }
+    return total;
+  }
+}
+
+class CartModel with ChangeNotifier {
   final List<CartItem> _items = [];
 
   List<CartItem> get items => _items;
-  
-  double get totalPrice => _items.fold(
-    0, 
-    (sum, item) => sum + item.totalPrice
-  );
 
-  void addItem(CartItem newItem) {
-    // Check for existing item
-    final existingIndex = _items.indexWhere((item) => item.isSameItem(newItem));
-    
-    if (existingIndex != -1) {
-      // Increase quantity if exists
-      _items[existingIndex].quantity += newItem.quantity;
+  double get total => _items.fold(0, (sum, item) => sum + item.totalPrice);
+
+  void addItem(String foodId, String name, double price, int quantity, {required String categoryId, String? size, List<Map<String, dynamic>>? addons}) {
+    final existingItemIndex = _items.indexWhere((item) => item.foodId == foodId && item.size == size);
+    if (existingItemIndex >= 0) {
+      _items[existingItemIndex].quantity += quantity;
     } else {
-      // Add new item
-      _items.add(newItem);
+      _items.add(CartItem(
+        foodId: foodId,
+        name: name,
+        price: price,
+        quantity: quantity,
+        categoryId: categoryId,
+        size: size,
+        addons: addons ?? [],
+      ));
     }
     notifyListeners();
   }
@@ -30,18 +70,16 @@ class CartModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void incrementQuantity(int index) {
-    _items[index].quantity++;
+  void updateQuantity(int index, int newQuantity) {
+    if (newQuantity <= 0) {
+      _items.removeAt(index);
+    } else {
+      _items[index].quantity = newQuantity;
+    }
     notifyListeners();
   }
 
-  void decrementQuantity(int index) {
-    if (_items[index].quantity > 1) {
-      _items[index].quantity--;
-      notifyListeners();
-    }
-  }
-  void clearCart() {
+  void clear() {
     _items.clear();
     notifyListeners();
   }

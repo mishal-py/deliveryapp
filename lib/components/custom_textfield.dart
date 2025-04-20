@@ -4,14 +4,20 @@ class CustomTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
-  final IconData? prefixIcon; 
+  final IconData? prefixIcon;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+  final Function(String)? onChanged;
 
   const CustomTextfield({
     super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
-    this.prefixIcon, 
+    this.prefixIcon,
+    this.keyboardType,
+    this.validator,
+    this.onChanged,
   });
 
   @override
@@ -34,6 +40,8 @@ class _CustomTextfieldState extends State<CustomTextfield> {
       child: TextField(
         controller: widget.controller,
         obscureText: _isObscured,
+        keyboardType: widget.keyboardType,
+        onChanged: widget.onChanged,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
@@ -43,7 +51,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
           ),
           hintText: widget.hintText,
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
-          prefixIcon: widget.prefixIcon != null 
+          prefixIcon: widget.prefixIcon != null
               ? Icon(widget.prefixIcon, color: Theme.of(context).colorScheme.primary)
               : null,
           suffixIcon: widget.obscureText

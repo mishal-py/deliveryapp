@@ -1,38 +1,80 @@
-
-class Foods {
+class MenuCategory {
+  final String id;
   final String name;
-  final String description;
-  final String imagepath;
-  final double price;
-  final FoodCategory category;
-  List<Addon> availableAddons;
 
-  Foods ({
-    required this.name,
-    required this.description,
-    required this.imagepath,
-    required this.price,
-    required this.availableAddons,
-    required this.category,
-  });
+  MenuCategory({required this.id, required this.name});
+
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'name': name};
+  }
+
+  factory MenuCategory.fromMap(Map<String, dynamic> map) {
+    return MenuCategory(id: map['id']??'', 
+    name: map['name']?? 'Unknown',
+    );
+  }
 }
-  enum FoodCategory{
-    burgers,
-    pizzas,
-    momos,
-    desserts,
-    drinks,
-    biryani,
-    noodles,
+
+class FoodItem {
+  final String id;
+  final String categoryId;
+  final String name;
+  final double price;
+  final String? photoUrl;
+  final String description;
+  final List<Addon> addons;
+
+  FoodItem({
+    required this.id,
+    required this.categoryId,
+    required this.name,
+    required this.price,
+    this.photoUrl,
+    required this.description,
+    required this.addons,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'categoryId': categoryId,
+      'name': name,
+      'price': price,
+      'photoUrl': photoUrl,
+      'description': description,
+      'addons': addons.map((addon) => addon.toMap()).toList(),
+    };
   }
 
-  class Addon{
-    String name;
-    double price;
+  factory FoodItem.fromMap(Map<String, dynamic> map) {
+    return FoodItem(
+      id: map['id'],
+      categoryId: map['categoryId'],
+      name: map['name'],
+      price: map['price'].toDouble(),
+      photoUrl: map['photoUrl'],
+      description: map['description'],
+      addons: (map['addons'] as List).map((addon) => Addon.fromMap(addon)).toList(),
+    );
+  }
+}
 
-    Addon({
-      required this.name,
-      required this.price,
-    });
+class Addon {
+  final String id;
+  final String name;
+  final double price;
+
+  Addon({required this.id, required this.name, required this.price});
+
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'name': name, 'price': price};
   }
 
+  factory Addon.fromMap(Map<String, dynamic> map) {
+    return Addon(
+      id: map['id'],
+      name: map['name'],
+      price: map['price'].toDouble(),
+    );
+  }
+}

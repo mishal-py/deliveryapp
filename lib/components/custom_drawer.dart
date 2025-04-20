@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:newapp/components/custom_drawer_tile.dart';
 import 'package:newapp/pages/setting_page.dart';
 import 'package:newapp/authentication/login_or_registration.dart';
-import 'package:newapp/pages/home_page.dart';
 import 'package:newapp/pages/profile_page.dart';
 import 'package:newapp/pages/notification_page.dart';
 import 'package:newapp/pages/offer_page.dart';
+
 
 class CustomDrawer extends StatelessWidget{
   const CustomDrawer({super.key});
@@ -37,8 +37,7 @@ class CustomDrawer extends StatelessWidget{
           onTap: (){
             Navigator.pop(context);
             Navigator.push(context,
-             MaterialPageRoute(builder: (context)=> const HomePage(),
-             )
+             MaterialPageRoute(builder: (context)=> const NotificationPage()),
              );
           }
           ),
