@@ -19,7 +19,9 @@ import 'package:newapp/services/auth_service.dart';
 import 'package:newapp/models/cart_model.dart';
 import 'package:newapp/pages/Home/waiterpickup_screen.dart';
 import 'package:newapp/pages/Home/waiter_details_screen.dart';
-
+import 'package:newapp/pages/Home/homscreen.dart';
+import 'package:newapp/pages/Home/notification_screen.dart';
+import 'package:newapp/pages/Home/offer_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +72,9 @@ class MyApp extends StatelessWidget {
             '/cashier_billing': (context) => const CashierBillingScreen(),
             '/waiter_order_details': (context) => const WaiterOrderDetailsScreen(),
             '/waiter_pickup': (context) => const WaiterPickupScreen(),
+            '/Offer':(context) => const OfferScreen(),
+            '/home':(context) => const HomeScreen(),
+            '/Notification': (context) => const ClientNotificationScreen(),
           },
           // Override home to handle user role redirection after splash screen
         );

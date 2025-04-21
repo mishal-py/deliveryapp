@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:newapp/components/custom_textfield.dart';
 import 'package:newapp/components/custom_button.dart';
 import 'admin_panel.dart';
-import 'package:newapp/pages/Home/clienthomescreen.dart';
+import 'package:newapp/pages/Home/homscreen.dart';
 import 'package:newapp/pages/Home/kitchenhomescreen.dart';
 import 'package:newapp/pages/Home/waiterhomescreen.dart';
 import 'package:newapp/pages/Home/cashier_billing_screen.dart';
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
         default:
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const ClientHomeScreen()),
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
           );
           break;
       }

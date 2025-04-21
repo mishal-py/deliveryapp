@@ -25,6 +25,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   File? _selectedImage;
   String? _selectedCategoryId;
   List<Addon> _addons = [];
+  bool _isSpecialOffer = false;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
     _descriptionController.text = widget.foodItem.description;
     _selectedCategoryId = widget.foodItem.categoryId;
     _addons = widget.foodItem.addons;
+    _isSpecialOffer = widget.foodItem.isSpecialOffer;
   }
 
   @override
@@ -57,23 +59,29 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
       return;
     }
 
-    await _repository.updateFoodItem(
-      FoodItem(
-        id: widget.foodItem.id,
-        categoryId: _selectedCategoryId!,
-        name: _foodNameController.text,
-        price: double.parse(_priceController.text),
-        photoUrl: widget.foodItem.photoUrl,
-        description: _descriptionController.text,
-        addons: _addons,
-      ),
-      _selectedImage,
-    );
-
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Food item updated')),
-    );
+    try {
+      await _repository.updateFoodItem(
+        FoodItem(
+          id: widget.foodItem.id,
+          categoryId: _selectedCategoryId!,
+          name: _foodNameController.text,
+          price: double.parse(_priceController.text),
+          photoUrl: widget.foodItem.photoUrl,
+          description: _descriptionController.text,
+          addons: _addons,
+          isSpecialOffer: _isSpecialOffer,
+        ),
+        _selectedImage,
+      );
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Food item updated')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating food item: $e')),
+      );
+    }
   }
 
   void _addAddon() {
@@ -93,13 +101,22 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Food Item')),
+      appBar: AppBar(
+        title: const Text('Edit Food Item'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Edit Food Item', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             StreamBuilder<List<MenuCategory>>(
               stream: _repository.getCategories(),
               builder: (context, snapshot) {
@@ -118,25 +135,35 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
                 );
               },
             ),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _foodNameController,
               hintText: 'Food Name',
               obscureText: false,
             ),
-             const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _priceController,
               hintText: 'Price',
               keyboardType: TextInputType.number,
               obscureText: false,
             ),
-             const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _descriptionController,
               hintText: 'Description',
               obscureText: false,
             ),
-            
+            const SizedBox(height: 10),
+            SwitchListTile(
+              title: const Text('Mark as Special Offer'),
+              value: _isSpecialOffer,
+              onChanged: (value) {
+                setState(() {
+                  _isSpecialOffer = value;
+                });
+              },
+            ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -146,6 +173,9 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
                   setState(() => _selectedImage = File(pickedFile.path));
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
               child: const Text('Pick New Image'),
             ),
             if (_selectedImage != null) ...[
@@ -157,12 +187,13 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
             ],
             const SizedBox(height: 20),
             const Text('Add Addons', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-           CustomTextfield(
+            const SizedBox(height: 10),
+            CustomTextfield(
               controller: _addonNameController,
               hintText: 'Addon Name',
               obscureText: false,
             ),
-             const SizedBox(height: 10,), 
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _addonPriceController,
               hintText: 'Addon Price',
@@ -172,6 +203,9 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _addAddon,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
               child: const Text('Add Addon'),
             ),
             const SizedBox(height: 10),
@@ -188,6 +222,9 @@ class _EditFoodItemScreenState extends State<EditFoodItemScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _updateFoodItem,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
               child: const Text('Update Food Item'),
             ),
           ],

@@ -23,6 +23,7 @@ class FoodItem {
   final String? photoUrl;
   final String description;
   final List<Addon> addons;
+  final bool isSpecialOffer;
 
   FoodItem({
     required this.id,
@@ -32,6 +33,7 @@ class FoodItem {
     this.photoUrl,
     required this.description,
     required this.addons,
+    this.isSpecialOffer = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,6 +45,7 @@ class FoodItem {
       'photoUrl': photoUrl,
       'description': description,
       'addons': addons.map((addon) => addon.toMap()).toList(),
+      'isSpecialOffer': isSpecialOffer,
     };
   }
 
@@ -55,6 +58,7 @@ class FoodItem {
       photoUrl: map['photoUrl'],
       description: map['description'],
       addons: (map['addons'] as List).map((addon) => Addon.fromMap(addon)).toList(),
+      isSpecialOffer: map['isSpecialOffer'] ?? false,
     );
   }
 }

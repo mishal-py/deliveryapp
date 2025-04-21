@@ -23,6 +23,7 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
   File? _selectedImage;
   String? _selectedCategoryId;
   List<Addon> _addons = [];
+  bool _isSpecialOffer = false;
 
   @override
   void dispose() {
@@ -45,25 +46,31 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
       return;
     }
 
-    await _repository.addFoodItem(
-      categoryId: _selectedCategoryId!,
-      name: _foodNameController.text,
-      price: double.parse(_priceController.text),
-      description: _descriptionController.text,
-      image: _selectedImage,
-      addons: _addons,
-    );
-
-    _foodNameController.clear();
-    _priceController.clear();
-    _descriptionController.clear();
-    _selectedImage = null;
-    _addons = [];
-    setState(() {});
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Food item added')),
-    );
+    try {
+      await _repository.addFoodItem(
+        categoryId: _selectedCategoryId!,
+        name: _foodNameController.text,
+        price: double.parse(_priceController.text),
+        description: _descriptionController.text,
+        image: _selectedImage,
+        addons: _addons,
+        isSpecialOffer: _isSpecialOffer,
+      );
+      _foodNameController.clear();
+      _priceController.clear();
+      _descriptionController.clear();
+      _selectedImage = null;
+      _addons = [];
+      _isSpecialOffer = false;
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Food item added')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding food item: $e')),
+      );
+    }
   }
 
   void _addAddon() {
@@ -83,13 +90,22 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Food Item')),
+      appBar: AppBar(
+        title: const Text('Add Food Item'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Add Food Item', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             StreamBuilder<List<MenuCategory>>(
               stream: _repository.getCategories(),
               builder: (context, snapshot) {
@@ -108,26 +124,35 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
                 );
               },
             ),
-            CustomTextfield
-            (
+            const SizedBox(height: 10),
+            CustomTextfield(
               controller: _foodNameController,
               hintText: 'Food Name (e.g., Chicken Momo)',
               obscureText: false,
             ),
-             const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _priceController,
               hintText: 'Price',
               keyboardType: TextInputType.number,
               obscureText: false,
             ),
-             const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _descriptionController,
               hintText: 'Description',
               obscureText: false,
             ),
-            
+            const SizedBox(height: 10),
+            SwitchListTile(
+              title: const Text('Mark as Special Offer'),
+              value: _isSpecialOffer,
+              onChanged: (value) {
+                setState(() {
+                  _isSpecialOffer = value;
+                });
+              },
+            ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
@@ -137,6 +162,9 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
                   setState(() => _selectedImage = File(pickedFile.path));
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
               child: const Text('Pick Image'),
             ),
             if (_selectedImage != null) ...[
@@ -145,12 +173,13 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
             ],
             const SizedBox(height: 20),
             const Text('Add Addons', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _addonNameController,
               hintText: 'Addon Name',
               obscureText: false,
             ),
-             const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             CustomTextfield(
               controller: _addonPriceController,
               hintText: 'Addon Price',
@@ -160,6 +189,9 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _addAddon,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
               child: const Text('Add Addon'),
             ),
             const SizedBox(height: 10),
@@ -176,6 +208,9 @@ class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _addFoodItem,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
               child: const Text('Add Food Item'),
             ),
           ],
