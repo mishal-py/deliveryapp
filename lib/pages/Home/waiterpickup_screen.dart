@@ -106,7 +106,6 @@ class _WaiterPickupScreenState extends State<WaiterPickupScreen> {
                                     final item = entry.value;
                                     final foodItem = item['foodItem'] as Map<String, dynamic>? ?? {};
                                     final name = foodItem['name'] as String? ?? 'Unknown Item';
-                                    final size = item['size'] as String? ?? 'N/A';
                                     final quantity = item['quantity'] as int? ?? 0;
                                     final totalPrice = item['totalPrice'] as double? ?? 0.0;
                                     final addons = List<Map<String, dynamic>>.from(item['addons'] ?? []);
@@ -117,7 +116,7 @@ class _WaiterPickupScreenState extends State<WaiterPickupScreen> {
                                         subtitle: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('Size: $size'),
+                                           
                                             Text('Quantity: $quantity'),
                                             Text('Total Price: \RS. ${totalPrice.toStringAsFixed(2)}'),
                                             if (addons.isNotEmpty) ...[

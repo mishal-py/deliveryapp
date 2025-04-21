@@ -76,7 +76,6 @@ class _WaiterOrderScreenState extends State<WaiterOrderScreen> {
         'items': _orderItems.map((item) {
           return {
             'foodItem': (item['foodItem'] as FoodItem).toMap(),
-            'size': item['size'],
             'addons': item['addons'], // Already a list of maps
             'quantity': item['quantity'],
             'totalPrice': item['totalPrice'],
@@ -107,11 +106,19 @@ class _WaiterOrderScreenState extends State<WaiterOrderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Take Order'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primary, // Primary color
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16), // Slightly rounded bottom corners
+          ),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Categories
+          const SizedBox(height: 16),
           StreamBuilder<List<MenuCategory>>(
             stream: _repository.getCategories(),
             builder: (context, snapshot) {
@@ -237,7 +244,6 @@ class _WaiterOrderScreenState extends State<WaiterOrderScreen> {
                 itemBuilder: (context, index) {
                   final item = _orderItems[index];
                   final foodItem = item['foodItem'] as FoodItem;
-                  final size = item['size'] as String? ?? 'N/A';
                   final quantity = item['quantity'] as int? ?? 0;
                   final totalPrice = item['totalPrice'] as double? ?? 0.0;
                   final addons = List<Map<String, dynamic>>.from(item['addons'] ?? []);
@@ -246,7 +252,6 @@ class _WaiterOrderScreenState extends State<WaiterOrderScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Size: $size'),
                         Text('Quantity: $quantity'),
                         if (addons.isNotEmpty)
                           Text(
@@ -285,6 +290,9 @@ class _WaiterOrderScreenState extends State<WaiterOrderScreen> {
             ElevatedButton(
               onPressed: _submitOrder,
               child: const Text('Submit Order'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
             ),
           ],
         ),

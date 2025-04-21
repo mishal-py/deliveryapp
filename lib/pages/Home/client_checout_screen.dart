@@ -73,7 +73,6 @@ class _ClientCheckoutScreenState extends State<ClientCheckoutScreen> {
               'price': item.price,
               'categoryId': item.categoryId,
             },
-            'size': item.size ?? 'N/A',
             'addons': item.addons,
             'quantity': item.quantity,
             'totalPrice': item.totalPrice,
@@ -179,7 +178,7 @@ class _ClientCheckoutScreenState extends State<ClientCheckoutScreen> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Size: ${item.size ?? 'N/A'}'),
+                                   
                                     Text('Quantity: ${item.quantity}'),
                                     if (item.addons.isNotEmpty)
                                       Text('Addons: ${item.addons.map((addon) => addon['name']).join(', ')}'),

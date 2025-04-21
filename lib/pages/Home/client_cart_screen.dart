@@ -71,26 +71,7 @@ class _ClientCartScreenState extends State<ClientCartScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: categoryIds.map((categoryId) {
-                        final categoryName = categoryNames[categoryId] ?? 'Unknown Category';
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: ChoiceChip(
-                            label: Text(categoryName),
-                            selected: _selectedCategoryId == categoryId,
-                            onSelected: (selected) {
-                              setState(() {
-                                _selectedCategoryId = selected ? categoryId : null;
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
+                 
                   const SizedBox(height: 16),
                   Expanded(
                     child: filteredItems.isEmpty
@@ -104,7 +85,7 @@ class _ClientCartScreenState extends State<ClientCartScreen> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Size: ${item.size ?? 'N/A'}'),
+                                    
                                     Text('Quantity: ${item.quantity}'),
                                     if (item.addons.isNotEmpty)
                                       Text('Addons: ${item.addons.map((addon) => addon['name']).join(', ')}'),

@@ -21,6 +21,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menu'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.primary, // Primary color
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16), // Slightly rounded bottom corners
+          ),
+        ),
         actions: [
           Stack(
             children: [
@@ -67,6 +74,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16,),
           // Categories
           StreamBuilder<List<MenuCategory>>(
             stream: _repository.getCategories(),
@@ -152,7 +160,6 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                                     result['price'],
                                     result['quantity'],
                                     categoryId: result['categoryId'],
-                                    size: result['size'],
                                     addons: result['addons'],
                                   );
                                   ScaffoldMessenger.of(context).showSnackBar(

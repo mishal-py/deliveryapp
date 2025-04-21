@@ -73,7 +73,6 @@ class WaiterOrderDetailsScreen extends StatelessWidget {
                             final item = items[index];
                             final foodItem = item['foodItem'] as Map<String, dynamic>? ?? {};
                             final name = foodItem['name'] as String? ?? 'Unknown Item';
-                            final size = item['size'] as String? ?? 'N/A';
                             final quantity = item['quantity'] as int? ?? 0;
                             final totalPrice = item['totalPrice'] as double? ?? 0.0;
                             final addons = List<Map<String, dynamic>>.from(item['addons'] ?? []);
@@ -84,7 +83,7 @@ class WaiterOrderDetailsScreen extends StatelessWidget {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Size: $size'),
+                                    
                                     Text('Quantity: $quantity'),
                                     Text('Total Price: \Rs. ${totalPrice.toStringAsFixed(2)}'),
                                     if (addons.isNotEmpty) ...[

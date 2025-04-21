@@ -207,7 +207,6 @@ class _CashierBillingScreenState extends State<CashierBillingScreen> {
                                           final foodItem =
                                               item['foodItem'] as Map<String, dynamic>? ?? {};
                                           final name = foodItem['name'] as String? ?? 'Unknown Item';
-                                          final size = item['size'] as String? ?? 'N/A';
                                           final quantity = item['quantity'] as int? ?? 0;
                                           final totalPrice = item['totalPrice'] as double? ?? 0.0;
                                           final addons =
@@ -219,7 +218,6 @@ class _CashierBillingScreenState extends State<CashierBillingScreen> {
                                               subtitle: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Text('Size: $size'),
                                                   Text('Quantity: $quantity'),
                                                   Text(
                                                       'Total Price: \Rs. ${totalPrice.toStringAsFixed(2)}'),

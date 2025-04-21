@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class KitchenOrderScreen extends StatefulWidget {
   const KitchenOrderScreen({super.key});
@@ -27,12 +28,35 @@ class _KitchenOrderScreenState extends State<KitchenOrderScreen> {
       );
     }
   }
+  
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print('User signed out successfully');
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/login',
+        (route) => false,
+      );
+    } catch (e) {
+      print('Error signing out: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing out: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kitchen Orders'),
+        actions: [
+          IconButton(
+            onPressed: () => _logout(context),
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -114,7 +138,7 @@ class _KitchenOrderScreenState extends State<KitchenOrderScreen> {
                                     final item = entry.value;
                                     final foodItem = item['foodItem'] as Map<String, dynamic>? ?? {};
                                     final name = foodItem['name'] as String? ?? 'Unknown Item';
-                                    final size = item['size'] as String? ?? 'N/A';
+                                    
                                     final quantity = item['quantity'] as int? ?? 0;
                                     final totalPrice = item['totalPrice'] as double? ?? 0.0;
                                     final addons = List<Map<String, dynamic>>.from(item['addons'] ?? []);
@@ -125,7 +149,7 @@ class _KitchenOrderScreenState extends State<KitchenOrderScreen> {
                                         subtitle: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('Size: $size'),
+                                            
                                             Text('Quantity: $quantity'),
                                             Text('Total Price: \RS. ${totalPrice.toStringAsFixed(2)}'),
                                             if (addons.isNotEmpty) ...[

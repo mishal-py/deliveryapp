@@ -6,7 +6,6 @@ class CartItem {
   final double price;
   int quantity;
   final String categoryId;
-  final String? size;
   final List<Map<String, dynamic>> addons;
 
   CartItem({
@@ -15,7 +14,6 @@ class CartItem {
     required this.price,
     required this.quantity,
     required this.categoryId,
-    this.size,
     this.addons = const [],
   });
 
@@ -26,7 +24,6 @@ class CartItem {
       'price': price,
       'quantity': quantity,
       'categoryId': categoryId,
-      'size': size,
       'addons': addons,
     };
   }
@@ -47,8 +44,8 @@ class CartModel with ChangeNotifier {
 
   double get total => _items.fold(0, (sum, item) => sum + item.totalPrice);
 
-  void addItem(String foodId, String name, double price, int quantity, {required String categoryId, String? size, List<Map<String, dynamic>>? addons}) {
-    final existingItemIndex = _items.indexWhere((item) => item.foodId == foodId && item.size == size);
+  void addItem(String foodId, String name, double price, int quantity, {required String categoryId, List<Map<String, dynamic>>? addons}) {
+    final existingItemIndex = _items.indexWhere((item) => item.foodId == foodId);
     if (existingItemIndex >= 0) {
       _items[existingItemIndex].quantity += quantity;
     } else {
@@ -58,7 +55,6 @@ class CartModel with ChangeNotifier {
         price: price,
         quantity: quantity,
         categoryId: categoryId,
-        size: size,
         addons: addons ?? [],
       ));
     }

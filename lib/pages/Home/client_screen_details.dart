@@ -12,8 +12,7 @@ class ClientScreenDetails extends StatefulWidget {
 }
 
 class _ClientScreenDetailsState extends State<ClientScreenDetails> {
-  String _selectedSize = '380g';
-  final List<String> _sizes = ['380g', '480g', '560g'];
+  
   List<Addon> _selectedAddons = [];
   int _quantity = 1;
   double _basePrice = 0.0;
@@ -47,7 +46,7 @@ class _ClientScreenDetailsState extends State<ClientScreenDetails> {
       'price': widget.foodItem.price,
       'quantity': _quantity,
       'categoryId': widget.categoryId,
-      'size': _selectedSize,
+      
       'addons': addons,
       'totalPrice': _totalPrice,
     };
@@ -93,22 +92,7 @@ class _ClientScreenDetailsState extends State<ClientScreenDetails> {
                   const SizedBox(height: 16),
                   // Size Selection
                   const Text('Size', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Row(
-                    children: _sizes.map((size) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: ChoiceChip(
-                          label: Text(size),
-                          selected: _selectedSize == size,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedSize = size;
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                  
                   const SizedBox(height: 16),
                   // Addons
                   const Text('Build Your Meal', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
