@@ -1,0 +1,221 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+import 'menu_repository.dart';
+import '../../models/foods.dart';
+import '../../components/custom_textfield.dart';
+
+class FoodItemManagementScreen extends StatefulWidget {
+  const FoodItemManagementScreen({super.key});
+
+  @override
+  State<FoodItemManagementScreen> createState() => _FoodItemManagementScreenState();
+}
+
+class _FoodItemManagementScreenState extends State<FoodItemManagementScreen> {
+  final _repository = MenuRepository();
+  final _foodNameController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _addonNameController = TextEditingController();
+  final _addonPriceController = TextEditingController();
+  File? _selectedImage;
+  String? _selectedCategoryId;
+  List<Addon> _addons = [];
+  bool _isSpecialOffer = false;
+
+  @override
+  void dispose() {
+    _foodNameController.dispose();
+    _priceController.dispose();
+    _descriptionController.dispose();
+    _addonNameController.dispose();
+    _addonPriceController.dispose();
+    super.dispose();
+  }
+
+  void _addFoodItem() async {
+    if (_selectedCategoryId == null ||
+        _foodNameController.text.isEmpty ||
+        _priceController.text.isEmpty ||
+        _descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    try {
+      await _repository.addFoodItem(
+        categoryId: _selectedCategoryId!,
+        name: _foodNameController.text,
+        price: double.parse(_priceController.text),
+        description: _descriptionController.text,
+        image: _selectedImage,
+        addons: _addons,
+        isSpecialOffer: _isSpecialOffer,
+      );
+      _foodNameController.clear();
+      _priceController.clear();
+      _descriptionController.clear();
+      _selectedImage = null;
+      _addons = [];
+      _isSpecialOffer = false;
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Food item added')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding food item: $e')),
+      );
+    }
+  }
+
+  void _addAddon() {
+    if (_addonNameController.text.isNotEmpty && _addonPriceController.text.isNotEmpty) {
+      setState(() {
+        _addons.add(Addon(
+          id: const Uuid().v4(),
+          name: _addonNameController.text,
+          price: double.parse(_addonPriceController.text),
+        ));
+        _addonNameController.clear();
+        _addonPriceController.clear();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Food Item'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(16),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Add Food Item', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            StreamBuilder<List<MenuCategory>>(
+              stream: _repository.getCategories(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const CircularProgressIndicator();
+                var categories = snapshot.data!;
+                return DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Select Category'),
+                  value: _selectedCategoryId,
+                  items: categories
+                      .map((category) => DropdownMenuItem(
+                            value: category.id,
+                            child: Text(category.name),
+                          ))
+                      .toList(),
+                  onChanged: (value) => setState(() => _selectedCategoryId = value),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            CustomTextfield(
+              controller: _foodNameController,
+              hintText: 'Food Name (e.g., Chicken Momo)',
+              obscureText: false,
+            ),
+            const SizedBox(height: 10),
+            CustomTextfield(
+              controller: _priceController,
+              hintText: 'Price',
+              keyboardType: TextInputType.number,
+              obscureText: false,
+            ),
+            const SizedBox(height: 10),
+            CustomTextfield(
+              controller: _descriptionController,
+              hintText: 'Description',
+              obscureText: false,
+            ),
+            const SizedBox(height: 10),
+            SwitchListTile(
+              title: const Text('Mark as Special Offer'),
+              value: _isSpecialOffer,
+              onChanged: (value) {
+                setState(() {
+                  _isSpecialOffer = value;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                final picker = ImagePicker();
+                final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  setState(() => _selectedImage = File(pickedFile.path));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
+              child: const Text('Pick Image'),
+            ),
+            if (_selectedImage != null) ...[
+              const SizedBox(height: 10),
+              Image.file(_selectedImage!, height: 100, width: 100),
+            ],
+            const SizedBox(height: 20),
+            const Text('Add Addons', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            CustomTextfield(
+              controller: _addonNameController,
+              hintText: 'Addon Name',
+              obscureText: false,
+            ),
+            const SizedBox(height: 10),
+            CustomTextfield(
+              controller: _addonPriceController,
+              hintText: 'Addon Price',
+              keyboardType: TextInputType.number,
+              obscureText: false,
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _addAddon,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
+              child: const Text('Add Addon'),
+            ),
+            const SizedBox(height: 10),
+            if (_addons.isNotEmpty) ...[
+              const Text('Added Addons:'),
+              ..._addons.map((addon) => ListTile(
+                    title: Text('${addon.name} - \Rs. ${addon.price}'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => setState(() => _addons.remove(addon)),
+                    ),
+                  )),
+            ],
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addFoodItem,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+              child: const Text('Add Food Item'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
